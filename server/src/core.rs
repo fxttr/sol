@@ -23,8 +23,5 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-mod core;
-
-fn main() {
-    println!("Hello, world!");
-}
+pub mod buffer;
+pub mod file;
