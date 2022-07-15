@@ -23,39 +23,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+use std::collections::HashMap;
 use std::fs;
+use crate::core::err::FileError;
+use crate::core::zfs::Volume;
 
-pub struct Volume {
+use super::view::View;
+
+pub struct Space<'a> {
     name: String,
-    path: String,
+    views: HashMap<String, View<'a>>,
+    volume: &'a Volume
 }
 
-pub struct Snapshot {}
+impl<'a> Space<'a> {
+    pub fn new(name: &str, volume: &'a Volume) -> Self {
+	Self {
+	    name: name.to_owned(),
+	    views: HashMap::new(),
+	    volume
+	}
+    }
+    
+    pub fn create_view(&'a mut self, name: &str) -> Result<&View, FileError> {
+        match fs::create_dir(self.volume.path(name)) {
+            Ok(_) => println!("Created directory."),
+            Err(_) => return Err(FileError),
+        };
 
-impl Volume {
-    pub fn new(name: &str, path: &str) -> Self {
-        Self {
-            name: name.to_string(),
-            path: path.to_string(),
-        }
+        let view = View::new(name, self);
+
+	self.views.insert(name.to_owned(), view);
+
+	match self.views.get(name) {
+	    Some(x) => Ok(x),
+	    _ => Err(FileError)
+	}
     }
 
-    pub fn close_file(&self, name: &str) -> bool {
-        match fs::remove_dir_all(self.path(name)) {
+    pub fn destroy_view(&mut self, name: &str) -> bool {
+	self.views.remove(name);
+	
+        match fs::remove_dir_all(self.volume.path(name)) {
             Ok(_) => true,
             Err(_) => false,
         }
     }
 
-    pub fn snapshot(&self, name: &str) -> Snapshot {
-        todo!();
-    }
-
-    pub fn rollback(&self, snapshot: Snapshot) {
-        todo!();
-    }
-
-    pub fn path(&self, name: &str) -> String {
-        self.path.clone() + "/" + name + "/"
+    pub fn view(&self, name: &str) -> Option<&View> {
+	self.views.get(name)
     }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2022, Florian Buestgens
+/*
+ * Copyright (c) 2022, Florian Büstgens
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -11,10 +11,10 @@
  *        this list of conditions and the following disclaimer in the
  *        documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY Florian Buestgens ''AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY Florian Büstgens ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL Florian Buestgens BE LIABLE FOR ANY
+ * DISCLAIMED. IN NO EVENT SHALL Florian Büstgens BE LIABLE FOR ANY
  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -23,5 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-pub struct Buffer {
+use std::fs::File;
+
+struct Repr {
+    name: String,
+    file: File
+}
+
+pub struct FsFile {
+    repr: Vec<Repr>,
+    file: File
 }

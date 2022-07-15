@@ -23,6 +23,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-pub mod err;
-pub mod file;
-pub mod zfs;
+pub mod space;
+pub mod fsfile;
+pub mod view;
