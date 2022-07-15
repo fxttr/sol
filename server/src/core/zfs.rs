@@ -38,6 +38,10 @@ pub struct FsFile {
     mode: File
 }
 
+pub struct Snapshot {
+    
+}
+
 impl Volume {
     pub fn new(name: &str, path: &str) -> Self {
 	Self {
@@ -46,7 +50,7 @@ impl Volume {
 	}
     }
 
-    pub fn create_file(&self, name: &str) -> Result<FsFile, Error> {
+    pub fn open_file(&self, name: &str) -> Result<FsFile, Error> {
 	match fs::create_dir(self.path(name)) {
 	    Ok(_) => println!("Created directory."),
 	    Err(e) => return Err(e)
@@ -61,6 +65,17 @@ impl Volume {
 	    body,
 	    mode
 	})
+    }
+
+    pub fn close_file(&self, name: &str) -> bool {
+	match fs::remove_dir_all(self.path(name)) {
+	    Ok(_) => true,
+	    Err(_) => false
+	}
+    }
+
+    pub fn snapshot(&self, name: &str) -> Snapshot {
+	todo!();
     }
 
     fn path(&self, name: &str) -> String {
