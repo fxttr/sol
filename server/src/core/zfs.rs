@@ -44,41 +44,41 @@ pub struct Snapshot {
 
 impl Volume {
     pub fn new(name: &str, path: &str) -> Self {
-	Self {
-	    name: name.to_string(),
-	    path: path.to_string()
-	}
+		Self {
+			name: name.to_string(),
+			path: path.to_string()
+		}
     }
 
     pub fn open_file(&self, name: &str) -> Result<FsFile, Error> {
-	match fs::create_dir(self.path(name)) {
-	    Ok(_) => println!("Created directory."),
-	    Err(e) => return Err(e)
-	};
+		match fs::create_dir(self.path(name)) {
+			Ok(_) => println!("Created directory."),
+			Err(e) => return Err(e)
+		};
 
-	let tags = File::create(self.path(name) + "tags").unwrap();
-	let body = File::create(self.path(name) + "body").unwrap();
-	let mode = File::create(self.path(name) + "mode").unwrap();
+		let tags = File::create(self.path(name) + "tags").unwrap();
+		let body = File::create(self.path(name) + "body").unwrap();
+		let mode = File::create(self.path(name) + "mode").unwrap();
 
-	Ok(FsFile {
-	    tags,
-	    body,
-	    mode
-	})
+		Ok(FsFile {
+			tags,
+			body,
+			mode
+		})
     }
 
     pub fn close_file(&self, name: &str) -> bool {
-	match fs::remove_dir_all(self.path(name)) {
-	    Ok(_) => true,
-	    Err(_) => false
-	}
+		match fs::remove_dir_all(self.path(name)) {
+			Ok(_) => true,
+			Err(_) => false
+		}
     }
 
     pub fn snapshot(&self, name: &str) -> Snapshot {
-	todo!();
+		todo!();
     }
 
     fn path(&self, name: &str) -> String {
-	self.path.clone() + "/" + name + "/"
+		self.path.clone() + "/" + name + "/"
     }
 }
