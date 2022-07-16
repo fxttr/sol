@@ -26,18 +26,21 @@
 use std::collections::HashMap;
 use std::fs;
 use crate::core::err::FileError;
-use crate::core::zfs::Volume;
+use crate::core::tree::Node;
+use crate::core::zfs::{Volume, TimeShift};
 
 use super::view::View;
 
 pub struct Space<'a> {
     name: String,
     views: HashMap<String, View<'a>>,
-    volume: &'a Volume
+    volume: &'a Volume<'a>
 }
 
 impl<'a> Space<'a> {
     pub fn new(name: &str, volume: &'a Volume) -> Self {
+	Space::create_vdir(&volume.path(), name);
+	
 	Self {
 	    name: name.to_owned(),
 	    views: HashMap::new(),
@@ -46,14 +49,12 @@ impl<'a> Space<'a> {
     }
     
     pub fn create_view(&'a mut self, name: &str) -> Result<&View, FileError> {
-        match fs::create_dir(self.volume.path(name)) {
+        match fs::create_dir(self.path()) {
             Ok(_) => println!("Created directory."),
             Err(_) => return Err(FileError),
         };
 
-        let view = View::new(name, self);
-
-	self.views.insert(name.to_owned(), view);
+	self.views.insert(name.to_owned(), View::new(name, self));
 
 	match self.views.get(name) {
 	    Some(x) => Ok(x),
@@ -64,7 +65,7 @@ impl<'a> Space<'a> {
     pub fn destroy_view(&mut self, name: &str) -> bool {
 	self.views.remove(name);
 	
-        match fs::remove_dir_all(self.volume.path(name)) {
+        match fs::remove_dir_all(self.path()) {
             Ok(_) => true,
             Err(_) => false,
         }
@@ -74,3 +75,11 @@ impl<'a> Space<'a> {
 	self.views.get(name)
     }
 }
+
+impl<'a> Node for Space<'a> {
+    fn path(&self) -> String {
+	self.volume.path() + "/" + &self.name
+    }
+}
+
+impl<'a> TimeShift for Space<'a> {}

@@ -26,3 +26,4 @@
 pub mod err;
 pub mod file;
 pub mod zfs;
+pub mod tree;

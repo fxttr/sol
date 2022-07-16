@@ -23,39 +23,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use std::fs;
+use std::collections::HashMap;
 
-pub struct Volume {
+use super::{file::space::Space, err::FileError, tree::Node};
+
+pub trait TimeShift {
+    fn snapshot(&self, name: &str) -> Snapshot {
+        todo!();
+    }
+
+    fn rollback(&self, snapshot: Snapshot) {
+        todo!();
+    }
+}
+
+pub struct Volume<'a> {
     name: String,
     path: String,
+    spaces: HashMap<String, Space<'a>>
 }
 
 pub struct Snapshot {}
 
-impl Volume {
+impl<'a> Volume<'a> {
     pub fn new(name: &str, path: &str) -> Self {
+	Volume::create_vdir(path, name);
+	
         Self {
             name: name.to_string(),
             path: path.to_string(),
+	    spaces: HashMap::new()
         }
     }
 
-    pub fn close_file(&self, name: &str) -> bool {
-        match fs::remove_dir_all(self.path(name)) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
-    }
+    pub fn create_space(&'a mut self, name: &str) -> Result<&'a Space<'a>, FileError> {
+	let space = Space::new(name, self);
 
-    pub fn snapshot(&self, name: &str) -> Snapshot {
-        todo!();
-    }
+	self.spaces.insert(name.to_owned(), space);
 
-    pub fn rollback(&self, snapshot: Snapshot) {
-        todo!();
+	match self.spaces.get(name) {
+	    Some(x) => Ok(x),
+	    _ => Err(FileError)
+	}
     }
+}
 
-    pub fn path(&self, name: &str) -> String {
-        self.path.clone() + "/" + name + "/"
+impl<'a> Node for Volume<'a> {
+    fn path(&self) -> String {
+        self.path.clone()
     }
 }

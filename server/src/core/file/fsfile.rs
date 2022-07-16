@@ -23,14 +23,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use std::fs::File;
+use std::{fs::File, collections::HashMap};
 
-struct Repr {
+use crate::core::{tree::Node, zfs::TimeShift};
+
+use super::view::View;
+
+pub struct FsFile<'a> {
     name: String,
-    file: File
+    repr: HashMap<String, File>,
+    file: File,
+    view: &'a View<'a>
 }
 
-pub struct FsFile {
-    repr: Vec<Repr>,
-    file: File
+impl<'a> FsFile<'a> {
+    // Todo: Error handling!
+    pub fn new(name: &str, path: &str, view: &'a mut View) -> Self {
+	FsFile::create_vdir(&view.path(), name);
+	
+	let mut repr: HashMap<String, File> = HashMap::new();
+
+	for repr_name in ["body", "tags", "mode"] {
+	    repr.insert(repr_name.to_owned(), File::create(FsFile::assemble_repr_path(repr_name, name, &view.path())).unwrap());
+	}
+	
+	Self {
+	    repr,
+	    file: File::open(path).unwrap(),
+	    view,
+	    name: name.to_owned()
+	}
+    }
+
+    fn assemble_repr_path(repr_name: &str, fsfile_name: &str, view_path: &str) -> String {
+	view_path.to_owned() + "/" + fsfile_name + "/" + repr_name
+    }
 }
+
+impl<'a> Node for FsFile<'a> {
+    fn path(&self) -> String {
+	self.view.path() + "/" + &self.name
+    }
+}
+
+impl<'a> TimeShift for FsFile<'a> {}
