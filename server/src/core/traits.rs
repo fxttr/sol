@@ -23,9 +23,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use std::{io::Error, fs};
+use std::fs;
+use std::io::Error;
 
-pub trait Node {
+use super::zfs::Snapshot;
+
+pub trait Branch {
     fn path(&self) -> String;
     
     fn create_vdir(basepath: &str, name: &str) -> Result<(), Error> {
@@ -34,5 +37,16 @@ pub trait Node {
     
     fn destroy_vdir(&self) -> Result<(), Error> {
 	fs::remove_dir_all(self.path())
+    }
+}
+
+
+pub trait TimeShift {
+    fn snapshot(&self, name: &str) -> Snapshot {
+        todo!();
+    }
+
+    fn rollback(&self, snapshot: Snapshot) {
+        todo!();
     }
 }

@@ -23,7 +23,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-pub mod err;
-pub mod file;
-pub mod zfs;
-pub mod tree;
+pub mod api;
+
+mod err;
+mod file;
+mod zfs;
+mod traits;

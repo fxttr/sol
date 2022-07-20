@@ -23,36 +23,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use std::collections::HashMap;
+use crate::core:: api::Branch;
 
-use crate::core::{tree::Node, err::FileError};
-
-use super::{fsfile::FsFile, space::Space};
-
-pub struct View<'a> {
+pub struct View {
     name: String,
-    files: HashMap<String, FsFile<'a>>,
-    space: &'a Space<'a>
+    parent_dir: String
 }
 
-impl<'a> View<'a> {
-    pub fn new(name: &str, space: &'a mut Space) -> Self {
-	View::create_vdir(&space.path(), name);
+impl View {
+    pub fn new(name: &str, parent_dir: &str) -> Self {
+	View::create_vdir(parent_dir, name);
 	
 	Self {
 	    name: name.to_owned(),
-	    files: HashMap::new(),
-	    space
+	    parent_dir: parent_dir.to_owned()
 	}
-    }
-
-    pub fn create_fsfile(name: &str) -> Result<&'a FsFile<'a>, FileError> {
-	todo!()
     }
 }
 
-impl<'a> Node for View<'a> {
+impl Branch for View {
     fn path(&self) -> String {
-	self.space.path() + "/" + &self.name
+	self.parent_dir + "/" + &self.name
     }
 }

@@ -23,52 +23,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use std::collections::HashMap;
+use super::traits::Branch;
 
-use super::{file::space::Space, err::FileError, tree::Node};
-
-pub trait TimeShift {
-    fn snapshot(&self, name: &str) -> Snapshot {
-        todo!();
-    }
-
-    fn rollback(&self, snapshot: Snapshot) {
-        todo!();
-    }
-}
-
-pub struct Volume<'a> {
+pub struct Volume {
     name: String,
     path: String,
-    spaces: HashMap<String, Space<'a>>
 }
 
 pub struct Snapshot {}
 
-impl<'a> Volume<'a> {
+impl Volume {
     pub fn new(name: &str, path: &str) -> Self {
 	Volume::create_vdir(path, name);
 	
         Self {
             name: name.to_string(),
-            path: path.to_string(),
-	    spaces: HashMap::new()
+            path: path.to_string()
         }
-    }
-
-    pub fn create_space(&'a mut self, name: &str) -> Result<&'a Space<'a>, FileError> {
-	let space = Space::new(name, self);
-
-	self.spaces.insert(name.to_owned(), space);
-
-	match self.spaces.get(name) {
-	    Some(x) => Ok(x),
-	    _ => Err(FileError)
-	}
     }
 }
 
-impl<'a> Node for Volume<'a> {
+impl Branch for Volume {
     fn path(&self) -> String {
         self.path.clone()
     }

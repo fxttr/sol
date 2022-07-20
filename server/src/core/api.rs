@@ -23,31 +23,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use std::fs;
-use crate::core::err::FileError;
-use crate::core::api::Branch;
-use crate::core::traits::TimeShift;
+use std::{io::Error, fs};
 
-pub struct Space {
-    name: String,
-    parent_dir: String
+type NodeIndex = usize;
+
+pub trait Branch {
+    fn path(&self) -> String;
+    
+    fn create_vdir(basepath: &str, name: &str) -> Result<(), Error> {
+	fs::create_dir_all(basepath.to_owned() + "/" + name)
+    }
+    
+    fn destroy_vdir(&self) -> Result<(), Error> {
+	fs::remove_dir_all(self.path())
+    }
 }
 
-impl Space {
-    pub fn new(name: &str, parent_dir: &str) -> Self {
-	Space::create_vdir(parent_dir, name);
-	
+pub struct Node<T: Branch> {
+    parent: NodeIndex,
+    children: Vec<NodeIndex>,
+    current: T
+}
+
+pub struct Arena<T: Branch> {
+    nodes: Vec<Node<T>>
+}
+
+impl<T: Branch> Arena<T> {
+    pub fn new() -> Self {
 	Self {
-	    name: name.to_owned(),
-	    parent_dir: parent_dir.to_owned()
+	    nodes: Vec::new()
 	}
     }
-}
 
-impl Branch for Space {
-    fn path(&self) -> String {
-	self.parent_dir + "/" + &self.name
+    pub fn insert(&mut self, data: T, parent: NodeIndex) -> NodeIndex {
+	let next_index = self.nodes.len();
+
+	self.nodes.push(Node {
+	    parent,
+	    children: Vec::new(),
+	    current: data
+	});
+
+	let parent_node = self.nodes.get(parent);
+
+	match self.nodes.get(parent) {
+	    Some(parent_node) => parent_node.children.push(next_index),
+	    None => println!("No parent found!")
+	};
+
+	next_index
     }
 }
-
-impl TimeShift for Space {}

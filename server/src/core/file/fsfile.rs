@@ -25,33 +25,31 @@
 
 use std::{fs::File, collections::HashMap};
 
-use crate::core::{tree::Node, zfs::TimeShift};
+use crate::core::traits::{Branch, TimeShift};
 
-use super::view::View;
-
-pub struct FsFile<'a> {
+pub struct FsFile {
     name: String,
     repr: HashMap<String, File>,
     file: File,
-    view: &'a View<'a>
+    parent_dir: String
 }
 
-impl<'a> FsFile<'a> {
+impl FsFile {
     // Todo: Error handling!
-    pub fn new(name: &str, path: &str, view: &'a mut View) -> Self {
-	FsFile::create_vdir(&view.path(), name);
+    pub fn new(name: &str, path: &str, parent_dir: &str) -> Self {
+	FsFile::create_vdir(&parent_dir, name);
 	
 	let mut repr: HashMap<String, File> = HashMap::new();
 
 	for repr_name in ["body", "tags", "mode"] {
-	    repr.insert(repr_name.to_owned(), File::create(FsFile::assemble_repr_path(repr_name, name, &view.path())).unwrap());
+	    repr.insert(repr_name.to_owned(), File::create(FsFile::assemble_repr_path(repr_name, name, &parent_dir)).unwrap());
 	}
 	
 	Self {
 	    repr,
 	    file: File::open(path).unwrap(),
-	    view,
-	    name: name.to_owned()
+	    name: name.to_owned(),
+	    parent_dir: parent_dir.to_owned()
 	}
     }
 
@@ -60,10 +58,10 @@ impl<'a> FsFile<'a> {
     }
 }
 
-impl<'a> Node for FsFile<'a> {
+impl<'a> Branch for FsFile {
     fn path(&self) -> String {
-	self.view.path() + "/" + &self.name
+	self.parent_dir + "/" + &self.name
     }
 }
 
-impl<'a> TimeShift for FsFile<'a> {}
+impl<'a> TimeShift for FsFile {}
