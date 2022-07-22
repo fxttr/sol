@@ -56,7 +56,7 @@ impl<T: Branch> Arena<T> {
 	}
     }
 
-    pub fn insert(&mut self, data: T, parent: NodeIndex) -> NodeIndex {
+    pub fn open(&mut self, data: T, parent: NodeIndex) -> NodeIndex {
 	let next_index = self.nodes.len();
 
 	self.nodes.push(Node {
@@ -65,13 +65,30 @@ impl<T: Branch> Arena<T> {
 	    current: data
 	});
 
-	let parent_node = self.nodes.get(parent);
+	let parent_node = self.nodes.get_mut(parent);
 
-	match self.nodes.get(parent) {
+	match parent_node {
 	    Some(parent_node) => parent_node.children.push(next_index),
 	    None => println!("No parent found!")
 	};
 
 	next_index
+    }
+
+    pub fn get_index(&self, name: &str) -> NodeIndex {
+	todo!()
+    }
+
+    pub fn close(&mut self, index: NodeIndex) {
+	let children = match self.nodes.get_mut(index) {
+	    Some(x) => &x.children,
+	    None => return 
+	};
+
+	for child in children {
+	    self.close(*child);
+	}
+
+	self.nodes.remove(index);
     }
 }

@@ -46,7 +46,7 @@ impl Space {
 
 impl Branch for Space {
     fn path(&self) -> String {
-	self.parent_dir + "/" + &self.name
+	String::new() + &self.parent_dir + "/" + &self.name
     }
 }
 

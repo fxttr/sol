@@ -60,7 +60,7 @@ impl FsFile {
 
 impl<'a> Branch for FsFile {
     fn path(&self) -> String {
-	self.parent_dir + "/" + &self.name
+	String::new() + &self.parent_dir + "/" + &self.name
     }
 }
 
