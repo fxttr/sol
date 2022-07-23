@@ -29,66 +29,65 @@ type NodeIndex = usize;
 
 pub trait Branch {
     fn path(&self) -> String;
-    
+
     fn create_vdir(basepath: &str, name: &str) -> Result<(), Error> {
-	fs::create_dir_all(basepath.to_owned() + "/" + name)
+        fs::create_dir_all(basepath.to_owned() + "/" + name)
     }
-    
+
     fn destroy_vdir(&self) -> Result<(), Error> {
-	fs::remove_dir_all(self.path())
+        fs::remove_dir_all(self.path())
     }
 }
 
 pub struct Node<T: Branch> {
     parent: NodeIndex,
     children: Vec<NodeIndex>,
-    current: T
+    current: T,
 }
 
 pub struct Arena<T: Branch> {
-    nodes: Vec<Node<T>>
+    nodes: Vec<Node<T>>,
 }
 
 impl<T: Branch> Arena<T> {
     pub fn new() -> Self {
-	Self {
-	    nodes: Vec::new()
-	}
+        Self {
+            nodes: Vec::new()
+        }
     }
 
     pub fn open(&mut self, data: T, parent: NodeIndex) -> NodeIndex {
-	let next_index = self.nodes.len();
+        let next_index = self.nodes.len();
 
-	self.nodes.push(Node {
-	    parent,
-	    children: Vec::new(),
-	    current: data
-	});
+        self.nodes.push(Node {
+            parent,
+            children: Vec::new(),
+            current: data,
+		});
 
-	let parent_node = self.nodes.get_mut(parent);
+        let parent_node = self.nodes.get_mut(parent);
 
-	match parent_node {
-	    Some(parent_node) => parent_node.children.push(next_index),
-	    None => println!("No parent found!")
-	};
+        match parent_node {
+            Some(parent_node) => parent_node.children.push(next_index),
+            None => println!("No parent found!")
+        };
 
-	next_index
+        next_index
     }
 
     pub fn get_index(&self, name: &str) -> NodeIndex {
-	todo!()
+        todo!()
     }
 
     pub fn close(&mut self, index: NodeIndex) {
-	let children = match self.nodes.get_mut(index) {
-	    Some(x) => &x.children,
-	    None => return 
-	};
+        let children = match self.nodes.get(index) {
+            Some(x) => x.children.clone(),
+            None => return
+        };
+        self.nodes.remove(index);
 
-	for child in children {
-	    self.close(*child);
-	}
-
-	self.nodes.remove(index);
+        for child in children.iter() {
+            self.close(child.clone());
+        }
     }
 }
